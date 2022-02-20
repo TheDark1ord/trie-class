@@ -65,7 +65,6 @@ class TriePrivate
         }
 
         Tuple<Node, Integer> last_node = searchDown(pref);
-
         // Given prefix was not found
         if (last_node.second != pref.length())
             return new ArrayList<>();
