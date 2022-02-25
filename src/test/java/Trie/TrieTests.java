@@ -1,13 +1,12 @@
 package Trie;
 
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.junit.Assert;
-import org.junit.Rule;
 
 public class TrieTests
 {
@@ -35,9 +34,6 @@ public class TrieTests
         Assert.assertFalse(test2.searchString(""));
     }
 
-    @Rule
-    public final ExpectedException exception = ExpectedException.none();
-
     @Test
     public void delete_string()
     {
@@ -47,12 +43,17 @@ public class TrieTests
         test1.addString("Some");
         test1.addString("Another String");
 
+        Assert.assertTrue(test1.searchString("Another String"));
+        test1.deleteString("Another String");
+
         test1.deleteString("");
-        exception.expect(RuntimeException.class);
-        test1.deleteString("");
+        assertThrows((arg) -> test1.deleteString(arg), "", RuntimeException.class);
 
         test1.deleteString("Some String");
         Assert.assertTrue(test1.searchString("Some"));
+
+        test1.deleteString("Some");
+
 
         Trie test2 = new Trie();
         test2.addString("Some");
@@ -60,10 +61,10 @@ public class TrieTests
 
         test2.deleteString("Some");
         Assert.assertTrue(test2.searchString("Some String"));
+        test2.deleteString("Some String");
 
-        exception.expect(RuntimeException.class);
-        test2.deleteString("Some S");
-    }
+        assertThrows((arg) -> test2.deleteString(arg), "Some S", RuntimeException.class);
+   }
 
     @Test
     public void search_prefix()
@@ -100,5 +101,22 @@ public class TrieTests
 
         List<String> all_res_act = test1.searchPrefix("");
         Assert.assertTrue(th_res_exp.equals(all_res_act));
+    }
+
+    private void assertThrows(Consumer<String> func, String arg, Class<RuntimeException> expectedExceptionClass)
+    {
+        boolean pass = false;
+        try {
+            func.accept(arg);
+        }
+        catch (Exception e) {
+            pass = e.getClass() == expectedExceptionClass;
+        }
+        Assert.assertTrue("Specified function failed to throw "
+         + expectedExceptionClass
+          + " when provided with "
+           + arg
+            + " param",
+             pass);
     }
 }

@@ -2,32 +2,7 @@ package Trie;
 
 import java.util.*;
 
-
-// Trie interface
 class Trie
-{
-
-    public void addString(String str) {
-        implementation.addString(str);
-    }
-
-    public void deleteString(String str) {
-        implementation.deleteString(str);
-    }
-
-    public boolean searchString(String str) {
-        return implementation.searchString(str);
-    }
-
-    public List<String> searchPrefix(String pref) {
-        return implementation.searchPrefix(pref);
-    }
-
-    private final TriePrivate implementation = new TriePrivate();
-}
-
-// Trie implementation
-class TriePrivate
 {
     private final Node root = new Node();
 
@@ -39,8 +14,9 @@ class TriePrivate
         // Add missing nodes to complete the string
         for ( ;lastNode.second < str.length(); lastNode.second++)
         {
-            lastNode.first = new Node(str.charAt(lastNode.second), lastNode.first);
-            lastNode.first.addChild(lastNode.first);
+            Node newNode = new Node(str.charAt(lastNode.second), lastNode.first);
+            lastNode.first.addChild(newNode);
+            lastNode.first = newNode;
         }
 
         // Mark as the end of a string
@@ -114,7 +90,7 @@ class TriePrivate
         do
         {
             current = next;
-            next = searchNode(current.children, pref.charAt(charPos++));
+            next = current.searchChild(pref.charAt(charPos++));
         } while (next != null && charPos < pref.length());
 
         if (next != null)
@@ -138,35 +114,33 @@ class TriePrivate
         return ret_list;
     }
 
-    // Search for a node with a given symb in a given Node arr
-    private Node searchNode(HashSet<Node> nodeArr, char sym)
-    {
-        for (Node node : nodeArr) if (node.symb == sym) return node;
-        return null;
-    }
-
     private static class Node
     {
         char symb;
         // If True, this node is the last symbol of some string in the Trie
         boolean isLeaf;
         Node parent;
-        HashSet<Node> children;
+
+        TreeSet<Node> children = new TreeSet<Node>((o1, o2) -> o1.compareTo(o2));
 
         Node()
         {
             symb = 0;
             isLeaf = false;
             parent = null;
-            children.add(new Node());
         }
         Node(char sym, Node prev)
         {
             this.symb = sym;
             this.parent = prev;
             this.isLeaf = false;
+        }
 
-            children.add(new Node());
+        int compareTo(Node other)
+        {
+            if (this.symb == other.symb)
+                return 0;
+            return (this.symb > other.symb) ? 1 : -1;
         }
 
         void addChild(Node child)
@@ -177,6 +151,32 @@ class TriePrivate
         void deleteChild(Node to_delete)
         {
             children.remove(to_delete);
+        }
+
+        Node searchChild(char symb)
+        {
+            if (children.size() == 0)
+                return null;
+
+            Node retNode = null;
+            Node[] childrenArr = children.toArray(new Node[0]);
+
+            int low = 0, high = children.size() - 1;
+            while (low <= high)
+            {
+                int mid = low + high / 2; 
+                if (childrenArr[mid].symb < symb)
+                    low = mid + 1;
+                else if (childrenArr[mid].symb > symb)
+                    high = mid - 1;
+                else
+                {
+                    retNode = childrenArr[mid];
+                    break;
+                }
+            }
+
+            return retNode;
         }
     }
 }
