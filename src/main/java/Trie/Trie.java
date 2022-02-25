@@ -34,57 +34,58 @@ class TriePrivate
     public void addString(String str)
     {
         // Last matching node, found in the trie
-        Tuple<Node, Integer> last_node = searchDown(str);
+        Tuple<Node, Integer> lastNode = searchDown(str);
 
         // Add missing nodes to complete the string
-        for ( ;last_node.second < str.length(); last_node.second++)
+        for ( ;lastNode.second < str.length(); lastNode.second++)
         {
-            last_node.first.addChild(new Node(str.charAt(last_node.second), last_node.first));
-            last_node.first = searchNode(last_node.first.children, str.charAt(last_node.second));
+            lastNode.first = new Node(str.charAt(lastNode.second), lastNode.first);
+            lastNode.first.addChild(lastNode.first);
         }
 
         // Mark as the end of a string
-        last_node.first.isLeaf = true;
+        lastNode.first.isLeaf = true;
     }
 
     public boolean searchString(String str)
     {
         // Last matching node, found in the trie
-        Tuple<Node, Integer> last_node = searchDown(str);
-        return (last_node.first.isLeaf && str.equals(constructString(last_node.first)));
+        Tuple<Node, Integer> lastNode = searchDown(str);
+        return (lastNode.first.isLeaf && lastNode.second == str.length());
     }
 
     public List<String> searchPrefix(String pref)
     {
         if (pref.length() == 0)
         {
-            List<String> ret_arr = new ArrayList<String>();
+            List<String> retArr = new ArrayList<String>();
             for (Node node: root.children)
-                ret_arr.addAll(getLeafs(node, ""));
-            return ret_arr; 
+                retArr.addAll(getLeafs(node, ""));
+            return retArr; 
         }
 
-        Tuple<Node, Integer> last_node = searchDown(pref);
+        Tuple<Node, Integer> lastNode = searchDown(pref);
         // Given prefix was not found
-        if (last_node.second != pref.length())
+        if (lastNode.second != pref.length())
             return new ArrayList<>();
-        return getLeafs(last_node.first, pref.substring(0, pref.length() - 1));
+        return getLeafs(lastNode.first, pref.substring(0, pref.length() - 1));
     }
 
     public void deleteString(String str)
     {
-        if (!searchString(str))
+        Tuple<Node, Integer> toDelete = searchDown(str);
+
+        // Check if toDelete is the string we are looking for
+        if(!toDelete.first.isLeaf || toDelete.second != str.length())
             throw new RuntimeException(
-                    "ERROR: String \"" + str + "\" could not be found"
-            );
+                        "ERROR: String \"" + str + "\" could not be found"
+                );
 
-        Tuple<Node, Integer> to_delete = searchDown(str);
-
-        Node parent = to_delete.first.parent;
-        Node current = to_delete.first;
+        Node parent = toDelete.first.parent;
+        Node current = toDelete.first;
         current.isLeaf = false;
 
-        if (current.children.length != 0)
+        if (current.children.size() != 0)
             return;
 
         while (!current.isLeaf && current != root)
@@ -137,22 +138,8 @@ class TriePrivate
         return ret_list;
     }
 
-    // Go up the trie and construct the string
-    private String constructString(Node node)
-    {
-        Node current = node;
-        StringBuilder returnString = new StringBuilder();
-
-        while (current.parent != null)
-        {
-            returnString.insert(0, current.symb);
-            current = current.parent;
-        }
-        return returnString.toString();
-    }
-
     // Search for a node with a given symb in a given Node arr
-    private Node searchNode(Node[] nodeArr, char sym)
+    private Node searchNode(HashSet<Node> nodeArr, char sym)
     {
         for (Node node : nodeArr) if (node.symb == sym) return node;
         return null;
@@ -162,16 +149,16 @@ class TriePrivate
     {
         char symb;
         // If True, this node is the last symbol of some string in the Trie
-        Boolean isLeaf;
+        boolean isLeaf;
         Node parent;
-        Node[] children;
+        HashSet<Node> children;
 
         Node()
         {
             symb = 0;
             isLeaf = false;
             parent = null;
-            children = new Node[0];
+            children.add(new Node());
         }
         Node(char sym, Node prev)
         {
@@ -179,28 +166,17 @@ class TriePrivate
             this.parent = prev;
             this.isLeaf = false;
 
-            children = new Node[0];
+            children.add(new Node());
         }
 
         void addChild(Node child)
         {
-            Node[] newArr = new Node[children.length + 1];
-            System.arraycopy(children, 0, newArr, 0, children.length);
-
-            newArr[newArr.length - 1] = child;
-            children = newArr;
+            children.add(child);
         }
 
         void deleteChild(Node to_delete)
         {
-            Node[] newArr = new Node[children.length - 1];
-
-            int i = 0;
-            for (Node child: children)
-                if (child != to_delete)
-                    newArr[i++] = child;
-
-            children = newArr;
+            children.remove(to_delete);
         }
     }
 }
