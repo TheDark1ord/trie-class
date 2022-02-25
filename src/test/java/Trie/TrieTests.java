@@ -2,11 +2,13 @@ package Trie;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.junit.Assert;
+import org.apache.commons.lang3.RandomStringUtils;
 
 public class TrieTests
 {
@@ -28,10 +30,6 @@ public class TrieTests
         Assert.assertFalse(test1.searchString("H"));
         Assert.assertFalse(test1.searchString("Hg"));
         Assert.assertFalse(test1.searchString("G"));
-
-
-        Trie test2 = new Trie();
-        Assert.assertFalse(test2.searchString(""));
     }
 
     @Test
@@ -101,6 +99,24 @@ public class TrieTests
 
         List<String> all_res_act = test1.searchPrefix("");
         Assert.assertTrue(th_res_exp.equals(all_res_act));
+    }
+
+    @Test
+    public void randomTests()
+    {
+        Trie addStringTest = new Trie();
+        List<String> addedStrings = new ArrayList<String>();
+
+        for (int i = 0; i < 1000; i++)
+        {
+            addedStrings.add(RandomStringUtils.randomAlphabetic(1000));
+            addStringTest.addString(addedStrings.get(i));
+        }
+        for (int i = 0; i < 1000; i++)
+        {
+            Assert.assertTrue(addStringTest.searchString(addedStrings.get(i)));
+        }
+        
     }
 
     private void assertThrows(Consumer<String> func, String arg, Class<RuntimeException> expectedExceptionClass)

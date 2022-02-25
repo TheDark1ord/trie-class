@@ -114,6 +114,13 @@ class Trie
         return ret_list;
     }
 
+    // Search for a node with a given symb in a given Node arr
+    private Node searchNode(Node[] nodeArr, char sym)
+    {
+        for (Node node : nodeArr) if (node.symb == sym) return node;
+        return null;
+    }
+
     private static class Node
     {
         char symb;
@@ -164,7 +171,7 @@ class Trie
             int low = 0, high = children.size() - 1;
             while (low <= high)
             {
-                int mid = low + high / 2; 
+                int mid = (low + high) / 2; 
                 if (childrenArr[mid].symb < symb)
                     low = mid + 1;
                 else if (childrenArr[mid].symb > symb)
