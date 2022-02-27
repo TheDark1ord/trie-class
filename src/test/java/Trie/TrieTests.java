@@ -3,7 +3,6 @@ package Trie;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -18,6 +17,11 @@ public class TrieTests
     @Test
     public void search_string()
     {
+        Tuple<Integer, Character> tup = new Tuple<>(10, '1');
+        Tuple<Integer, Integer> tup2 = new Tuple<>(10, 10);
+        if (tup.equals(tup2))
+            System.out.println("");
+
         Trie test1 = new Trie(new String[]{
             "", "Some String", "Some String",
         });
@@ -97,9 +101,6 @@ public class TrieTests
             addedStrings.add(newString);
             test2.addString(newString);
         }
-        List<String> allStrings = test2.searchPrefix("");
-        for (String i: allStrings)
-            System.out.println(i);
 
         List<String> remainingStrings = new ArrayList<>(addedStrings);
         Random rand = new Random();
