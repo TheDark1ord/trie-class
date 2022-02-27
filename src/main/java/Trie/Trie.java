@@ -4,7 +4,17 @@ import java.util.*;
 
 class Trie
 {
-    private final Node root = new Node();
+    Trie() {};
+
+    Trie(String[] args)
+    {
+        for (String str: args) this.addString(str);
+    }
+
+    Trie(Collection<String> args)
+    {
+        for (String str: args) this.addString(str);
+    }
 
     public void addString(String str)
     {
@@ -23,7 +33,7 @@ class Trie
         lastNode.first.isLeaf = true;
     }
 
-    public boolean searchString(String str)
+    public boolean containsString(String str)
     {
         // Last matching node, found in the trie
         Tuple<Node, Integer> lastNode = searchDown(str);
@@ -35,8 +45,8 @@ class Trie
         if (pref.length() == 0)
         {
             List<String> retArr = new ArrayList<String>();
-            for (Node node: root.children)
-                retArr.addAll(getLeafs(node, ""));
+            for (Node node: root.children.values())
+                retArr.addAll(getLeafs(node, new StringBuilder()));
             return retArr; 
         }
 
@@ -44,7 +54,7 @@ class Trie
         // Given prefix was not found
         if (lastNode.second != pref.length())
             return new ArrayList<>();
-        return getLeafs(lastNode.first, pref.substring(0, pref.length() - 1));
+        return getLeafs(lastNode.first, new StringBuilder(pref.substring(0, pref.length() - 1)));
     }
 
     public void deleteString(String str)
@@ -61,10 +71,7 @@ class Trie
         Node current = toDelete.first;
         current.isLeaf = false;
 
-        if (current.children.size() != 0)
-            return;
-
-        while (!current.isLeaf && current != root)
+        while (current.children.size() == 0 && !current.isLeaf && current != root)
         {
             // To avoid paired reference (parent<-->child) and memory leak
             current.parent = null;
@@ -102,100 +109,19 @@ class Trie
 
     // Get all complete strings, following given node
     // Prefix - constructed string, preceding given node
-    private List<String> getLeafs(Node node, String prefix)
+    private List<String> getLeafs(Node node, StringBuilder prefix)
     {
         List<String> ret_list = new ArrayList<>();
         if (node.isLeaf)
-            ret_list.add(prefix + node.symb);
+            ret_list.add(prefix.toString() + node.symb);
 
-        for (Node current: node.children)
-            ret_list.addAll(getLeafs(current, prefix + node.symb));
+        prefix.append(node.symb);
+        for (Node current: node.children.values())
+            ret_list.addAll(getLeafs(current, prefix));
+        prefix.deleteCharAt(prefix.length() - 1);
 
         return ret_list;
     }
 
-    // Search for a node with a given symb in a given Node arr
-    private Node searchNode(Node[] nodeArr, char sym)
-    {
-        for (Node node : nodeArr) if (node.symb == sym) return node;
-        return null;
-    }
-
-    private static class Node
-    {
-        char symb;
-        // If True, this node is the last symbol of some string in the Trie
-        boolean isLeaf;
-        Node parent;
-
-        TreeSet<Node> children = new TreeSet<Node>((o1, o2) -> o1.compareTo(o2));
-
-        Node()
-        {
-            symb = 0;
-            isLeaf = false;
-            parent = null;
-        }
-        Node(char sym, Node prev)
-        {
-            this.symb = sym;
-            this.parent = prev;
-            this.isLeaf = false;
-        }
-
-        int compareTo(Node other)
-        {
-            if (this.symb == other.symb)
-                return 0;
-            return (this.symb > other.symb) ? 1 : -1;
-        }
-
-        void addChild(Node child)
-        {
-            children.add(child);
-        }
-
-        void deleteChild(Node to_delete)
-        {
-            children.remove(to_delete);
-        }
-
-        Node searchChild(char symb)
-        {
-            if (children.size() == 0)
-                return null;
-
-            Node retNode = null;
-            Node[] childrenArr = children.toArray(new Node[0]);
-
-            int low = 0, high = children.size() - 1;
-            while (low <= high)
-            {
-                int mid = (low + high) / 2; 
-                if (childrenArr[mid].symb < symb)
-                    low = mid + 1;
-                else if (childrenArr[mid].symb > symb)
-                    high = mid - 1;
-                else
-                {
-                    retNode = childrenArr[mid];
-                    break;
-                }
-            }
-
-            return retNode;
-        }
-    }
-}
-
-class Tuple<K, V>
-{
-    public K first;
-    public V second;
-
-    public Tuple(K first, V second)
-    {
-        this.first = first;
-        this.second = second;
-    }
+    private final Node root = new Node();
 }
