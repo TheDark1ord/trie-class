@@ -17,11 +17,6 @@ public class TrieTests
     @Test
     public void search_string()
     {
-        Tuple<Integer, Character> tup = new Tuple<>(10, '1');
-        Tuple<Integer, Integer> tup2 = new Tuple<>(10, 10);
-        if (tup.equals(tup2))
-            System.out.println("");
-
         Trie test1 = new Trie(new String[]{
             "", "Some String", "Some String",
         });
