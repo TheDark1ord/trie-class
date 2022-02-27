@@ -106,17 +106,7 @@ public class TrieTests
         for (int i = 0; i < 50; i++)
         {
             int randomIndex = rand.nextInt(remainingStrings.size() - 1);
-            
-            System.out.println("Deleted " + remainingStrings.get(randomIndex));
-            try
-            {
-                test2.deleteString(remainingStrings.get(randomIndex));
-            }
-            catch (RuntimeException e)
-            {
-                test2.deleteString(remainingStrings.get(randomIndex));
-            }
-
+            test2.deleteString(remainingStrings.get(randomIndex));
             deletedStrings.add(remainingStrings.remove(randomIndex));
         }
 
@@ -134,40 +124,40 @@ public class TrieTests
     {
         Trie test1 = new Trie();
 
-        List<String> tha_res_exp = List.of(
+        List<String> thaResExp = List.of(
             "tha", "thalami", "thalamocortical",
              "thalamocortically", "thalamostriate"
         );
-        for (String word: tha_res_exp)
+        for (String word: thaResExp)
             test1.addString(word);
             
-        List<String> the_res_exp = List.of(
+        List<String> theResExp = List.of(
             "the", "theacrine", "theacrines",
             "thearch", "thearchal"
         );    
-        for (String word: the_res_exp)
+        for (String word: theResExp)
             test1.addString(word);
 
 
-        List<String> tha_res_act = test1.searchPrefix("tha");
-        java.util.Collections.sort(tha_res_act);
-        Assert.assertTrue(tha_res_exp.equals(tha_res_act));
+        List<String> thaResAct = test1.searchPrefix("tha");
+        java.util.Collections.sort(thaResAct);
+        Assert.assertTrue(thaResExp.equals(thaResAct));
 
-        List<String> the_res_act = test1.searchPrefix("the");
-        java.util.Collections.sort(the_res_act);
-        Assert.assertTrue(the_res_exp.equals(the_res_act));
+        List<String> theResAct = test1.searchPrefix("the");
+        java.util.Collections.sort(theResAct);
+        Assert.assertTrue(theResExp.equals(theResAct));
 
-        List<String> th_res_exp = Stream.concat(
-            tha_res_exp.stream(),
-             the_res_exp.stream()
+        List<String> thResExp = Stream.concat(
+            thaResExp.stream(),
+             theResExp.stream()
              ).toList();
-        List<String> th_res_act = test1.searchPrefix("th");
-        java.util.Collections.sort(th_res_act);
-        Assert.assertTrue(th_res_exp.equals(th_res_act));
+        List<String> thResAct = test1.searchPrefix("th");
+        java.util.Collections.sort(thResAct);
+        Assert.assertTrue(thResExp.equals(thResAct));
 
-        List<String> all_res_act = test1.searchPrefix("");
-        java.util.Collections.sort(all_res_act);
-        Assert.assertTrue(th_res_exp.equals(all_res_act));
+        List<String> allResAct = test1.searchPrefix("");
+        java.util.Collections.sort(allResAct);
+        Assert.assertTrue(thResExp.equals(allResAct));
     }
 
     private void assertThrows(Consumer<String> func, String arg, Class<RuntimeException> expectedExceptionClass)
